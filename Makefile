@@ -10,22 +10,16 @@ LDFLAGS = -shared
 
 VERSION = `grep "define VERSION" version.h | cut -d \" -f2`
 VERSION_MAJOR = `grep "define VERSION" version.h | cut -d \" -f2 | cut -d. -f1`
-CC ?= x86_64-pc-linux-gnu-gcc
-BR ?=
+INSTALL_DIR ?= `cat .install_dir`
+CC ?=
 INC ?=
 LINC ?=
-INSTALL_PATH ?=
 
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: depend clean debug release target
 
 all: release
-
-target: CC = $(BR)/output/host/usr/bin/arm-linux-gcc
-target: INC = -I$(BR)/output/staging/usr/include
-target: LINC = -L$(BR)/output/staging/usr/lib
-target: release
 
 release: WARN += -Werror
 release: CFLAGS += -O2
@@ -34,17 +28,25 @@ release: $(MAIN)
 debug: CFLAGS += -O0 -ggdb -g3
 debug: $(MAIN)
 
-install: INSTALL_PATH = /usr/local
-install: copy_files
+install:
+	mkdir -p $(INSTALL_DIR)/include
+	mkdir -p $(INSTALL_DIR)/lib
+	cp log.h $(INSTALL_DIR)/include
+	cp $(MAIN).so.$(VERSION) $(INSTALL_DIR)/lib
+	ln -sf $(MAIN).so.$(VERSION) $(INSTALL_DIR)/lib/$(MAIN).so.$(VERSION_MAJOR)
+	ln -sf $(MAIN).so.$(VERSION) $(INSTALL_DIR)/lib/$(MAIN).so
+	echo $(INSTALL_DIR) > .install_dir
 
-target_install: INSTALL_PATH = $(BR)/output/staging/usr
-target_install: copy_files
-
-copy_files:
-	cp log.h $(INSTALL_PATH)/include
-	cp $(MAIN).so.$(VERSION) $(INSTALL_PATH)/lib
-	ln -sf $(MAIN).so.$(VERSION) $(INSTALL_PATH)/lib/$(MAIN).so.$(VERSION_MAJOR)
-	ln -sf $(MAIN).so.$(VERSION) $(INSTALL_PATH)/lib/$(MAIN).so
+uninstall:
+	@echo $(INSTALL_DIR)
+	rm -f $(INSTALL_DIR)/include/log.h
+	rm -f $(INSTALL_DIR)/lib/$(MAIN).so.$(VERSION)
+	@if [ ! -f $(INSTALL_DIR)/lib/$(MAIN).so.$(VERSION_MAJOR) ]; then \
+	    rm -f $(INSTALL_DIR)/lib/$(MAIN).so.$(VERSION_MAJOR); \
+	fi
+	@if [ ! -f $(INSTALL_DIR)/lib/$(MAIN).so ]; then \
+	    rm -f $(INSTALL_DIR)/lib/$(MAIN).so; \
+	fi
 
 clean:
 	$(RM) *.o *~ $(MAIN).so.$(VERSION)
