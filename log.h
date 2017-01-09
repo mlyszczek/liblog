@@ -10,7 +10,9 @@
  * Include files
  ****************************************************************************/
 
+#include <errno.h>
 #include <stdio.h>
+#include <string.h>
 
 /*****************************************************************************
  * Preprocesor directives
@@ -43,6 +45,22 @@
   do \
     { \
       log_print(__FILE__, __LINE__, fmt, __VA_ARGS__); \
+    } \
+  while (0)
+
+/*****************************************************************************
+ * Name: PERROR
+ *
+ * Description:
+ *   Function behaves just like ordinary perror, but this function follows
+ *   convention of this liblog, so file and line number are added, and message
+ *   is printed with E/ prefix indicating error
+ ****************************************************************************/
+
+#define PERROR(fmt) \
+  do \
+    { \
+      log_print(__FILE__, __LINE__, "E/%s %s\n", fmt, strerror(errno)); \
     } \
   while (0)
 
