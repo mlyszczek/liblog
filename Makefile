@@ -10,7 +10,7 @@ LDFLAGS = -shared
 
 VERSION = `grep "define VERSION" version.h | cut -d \" -f2`
 VERSION_MAJOR = `grep "define VERSION" version.h | cut -d \" -f2 | cut -d. -f1`
-INSTALL_DIR ?= `cat .install_dir`
+DESTDIR ?= `cat .destdir`
 CC ?=
 INC ?=
 LINC ?=
@@ -29,23 +29,20 @@ debug: CFLAGS += -O0 -ggdb -g3
 debug: $(MAIN)
 
 install:
-	mkdir -p $(INSTALL_DIR)/include
-	mkdir -p $(INSTALL_DIR)/lib
-	cp log.h $(INSTALL_DIR)/include
-	cp $(MAIN).so.$(VERSION) $(INSTALL_DIR)/lib
-	ln -sf $(MAIN).so.$(VERSION) $(INSTALL_DIR)/lib/$(MAIN).so.$(VERSION_MAJOR)
-	ln -sf $(MAIN).so.$(VERSION) $(INSTALL_DIR)/lib/$(MAIN).so
-	echo $(INSTALL_DIR) > .install_dir
+	install -m 0644 log.h $(DESTDIR)/include
+	install -m 0755 $(MAIN).so.$(VERSION) $(DESTDIR)/lib
+	ln -sf $(MAIN).so.$(VERSION) $(DESTDIR)/lib/$(MAIN).so.$(VERSION_MAJOR)
+	ln -sf $(MAIN).so.$(VERSION) $(DESTDIR)/lib/$(MAIN).so
+	echo $(DESTDIR) > .destdir
 
 uninstall:
-	@echo $(INSTALL_DIR)
-	rm -f $(INSTALL_DIR)/include/log.h
-	rm -f $(INSTALL_DIR)/lib/$(MAIN).so.$(VERSION)
-	@if [ ! -f $(INSTALL_DIR)/lib/$(MAIN).so.$(VERSION_MAJOR) ]; then \
-	    rm -f $(INSTALL_DIR)/lib/$(MAIN).so.$(VERSION_MAJOR); \
+	$(RM) $(DESTDIR)/include/log.h
+	$(RM) $(DESTDIR)/lib/$(MAIN).so.$(VERSION)
+	@if [ ! -f $(DESTDIR)/lib/$(MAIN).so.$(VERSION_MAJOR) ]; then \
+	    $(RM) $(DESTDIR)/lib/$(MAIN).so.$(VERSION_MAJOR); \
 	fi
-	@if [ ! -f $(INSTALL_DIR)/lib/$(MAIN).so ]; then \
-	    rm -f $(INSTALL_DIR)/lib/$(MAIN).so; \
+	@if [ ! -f $(DESTDIR)/lib/$(MAIN).so ]; then \
+	    $(RM) $(DESTDIR)/lib/$(MAIN).so; \
 	fi
 
 clean:
