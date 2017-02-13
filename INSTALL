@@ -21,4 +21,4 @@ $ CC=arm-none-eabi \
   LINC=-L/usr/arm-none-eabi/usr/lib \
   make
 
-$ INSTALL_DIR=/usr/arm-none-eabi/usr make install
+$ DESTDIR=/usr/arm-none-eabi/usr make install
