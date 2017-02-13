@@ -4,7 +4,7 @@ MAIN = liblog
 
 SOURCE = -D_POSIX_C_SOURCE=199506L
 STD = -std=c99
-WARN = -Wall -Wextra -pedantic -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wwrite-strings -Winit-self -Wcast-align -Wstrict-aliasing -Wformat=2 -Wmissing-include-dirs -Wno-unused-parameter -Wuninitialized -Wstrict-overflow=5 -pedantic-errors
+WARN = -Wall -Wextra -pedantic -pedantic-errors
 CFLAGS = $(STD) $(WARN) $(SOURCE) -fPIC
 LDFLAGS = -shared
 
@@ -29,8 +29,8 @@ debug: CFLAGS += -O0 -ggdb -g3
 debug: $(MAIN)
 
 install:
-	install -m 0644 log.h $(DESTDIR)/include
-	install -m 0755 $(MAIN).so.$(VERSION) $(DESTDIR)/lib
+	install -m 0644 -D -t $(DESTDIR)/include log.h
+	install -m 0755 -D -t $(DESTDIR)/lib     $(MAIN).so.$(VERSION)
 	ln -sf $(MAIN).so.$(VERSION) $(DESTDIR)/lib/$(MAIN).so.$(VERSION_MAJOR)
 	ln -sf $(MAIN).so.$(VERSION) $(DESTDIR)/lib/$(MAIN).so
 	echo $(DESTDIR) > .destdir
