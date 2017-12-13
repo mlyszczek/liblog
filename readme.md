@@ -1,3 +1,10 @@
+Note
+====
+
+This project is deprecated and won't be updated. Please check out
+https://github.com/mlyszczek/embedlog which is much better version of
+**liblog**
+
 Name
 ====
 
